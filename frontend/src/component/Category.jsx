@@ -50,6 +50,10 @@ function Category(props) {
         return ;
       case "Comics":
         return setCategoryData([]);
+      case "Fiction":
+        return setCategoryData([]);
+      case "Fiction":
+        return setCategoryData([]);
       default:
         return setCategoryData([]);
     }
@@ -134,7 +138,7 @@ function Category(props) {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true, 
           }}
           sx={{
             display: { xs: "block", sm: "none" },
@@ -161,7 +165,7 @@ function Category(props) {
         </Drawer>
       </Box>
       <Box
-        container
+        container={+true}
         component="main"
         sx={{
           flexGrow: 1,

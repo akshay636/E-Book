@@ -6,11 +6,13 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Books from "./component/Books";
 import Category from "./component/Category";
-
+import { store } from "./component/store";
+import { Provider } from "react-redux";
 function App() {
   const [mode, setMode] = useState("Light");
   return (
     <div className={`App ${mode}`}>
+    <Provider store={store}>
       <BrowserRouter>
         <Navbar setMode={setMode} mode={mode} />
         <Routes>
@@ -20,6 +22,7 @@ function App() {
           <Route path="/category" element={<Category mode={mode} />} />
         </Routes>
       </BrowserRouter>
+      </Provider>
     </div>
   );
 }

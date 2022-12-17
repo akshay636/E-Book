@@ -13,15 +13,16 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import img1 from "../../uploads/image-1670748813125.jpeg";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
 import SearchBar from "./SearchBar";
 import { deleteBook, getAllBooks } from "../../services/books";
+
+import MsgBar from "./MsgBar";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -48,7 +49,6 @@ function getComparator(order, orderBy) {
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => ascendingComparator(a, b, orderBy);
 }
-
 
 function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
@@ -103,11 +103,8 @@ const headCells = [
 
 function EnhancedTableHead(props) {
   const {
-    onSelectAllClick,
     order,
     orderBy,
-    numSelected,
-    rowCount,
     onRequestSort,
   } = props;
   const createSortHandler = (property) => (event) => {
@@ -117,17 +114,7 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
-          />
-        </TableCell>
+        <TableCell padding="checkbox">SNo.</TableCell>
 
         {headCells.map((headCell) => (
           <TableCell
@@ -150,6 +137,9 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell padding="normal" align="right">
+         Actions
+        </TableCell>
       </TableRow>
     </TableHead>
   );
@@ -165,87 +155,77 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected,id, setBooks } = props;
-  const handleDelete=async()=>{
-    try {
-      const res= await deleteBook(id);
-       if (res) return setBooks((val) => {
-          return val.filter((el, index) => {
-            return el._id !== id;
-          });
-        });
-    } catch (error) {
-      console.log(error)
-    }
-    
-  }
- 
+  const { numSelected } = props;
 
   return (
-    <Toolbar
-      sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
-      }}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Books
-        </Typography>
-      )}
-      <SearchBar />
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton onClick={()=>{
-            handleDelete()
-          }}>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Toolbar>
+    <>
+      <Toolbar
+        sx={{
+          pl: { sm: 2 },
+          pr: { xs: 1, sm: 1 },
+          ...(numSelected > 0 && {
+            bgcolor: (theme) =>
+              alpha(
+                theme.palette.primary.main,
+                theme.palette.action.activatedOpacity
+              ),
+          }),
+        }}
+      >
+        {numSelected > 0 ? (
+          <Typography
+            sx={{ flex: "1 1 100%" }}
+            color="inherit"
+            variant="subtitle1"
+            component="div"
+          >
+            {numSelected} selected
+          </Typography>
+        ) : (
+          <Typography
+            sx={{ flex: "1 1 100%" }}
+            variant="h6"
+            id="tableTitle"
+            component="div"
+          >
+            Books
+          </Typography>
+        )}
+        <SearchBar />
+        {numSelected > 0 ? (
+          <Tooltip title="Delete">
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip title="Filter list">
+            <IconButton>
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Toolbar>
+    </>
   );
 }
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
-
-export default function Tables() {
+const msgIntial = {
+  msg: "",
+  color: "",
+  loading: false,
+};
+export default function Tables({books,setBooks}) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("year");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [books, setBooks] = useState([]);
-  const [id,setId]=useState('');
+  const [id, setId] = useState("");
+  const [isAlert, setIsALert] = useState(msgIntial);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -260,7 +240,7 @@ export default function Tables() {
     language: val.language,
     year: val.year,
     pages: val.pages,
-
+    action: [<EditIcon />, <DeleteIcon />],
   }));
 
   const handleSelectAllClick = (event) => {
@@ -272,6 +252,31 @@ export default function Tables() {
     setSelected([]);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const res = await deleteBook(id);
+      if (res) {
+        setIsALert({ msg: res.data.message, color: "green", loading: true });
+        setBooks((val) => {
+          return val.filter((el, index) => {
+            return el._id !== id;
+          });
+        });
+      }
+    } catch (error) {
+      setIsALert({ msg: error.message, color: "red", loading: true });
+    }
+  };
+  useEffect(() => {
+    let timeout;
+    if (isAlert) {
+      timeout = setTimeout(() => {
+        setIsALert(msgIntial);
+      }, 3000);
+    }
+    return () => clearTimeout(timeout);
+  }, [isAlert]);
+
   useEffect(() => {
     (async () => {
       const res = await getAllBooks();
@@ -280,25 +285,7 @@ export default function Tables() {
     return () => {};
   }, []);
 
-  console.log(id,'------<><><>')
-    const handleClick = (event, name,id) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setId(id)
-    setSelected(newSelected);
-  };
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -309,16 +296,23 @@ export default function Tables() {
     setPage(0);
   };
 
-
   const isSelected = (name) => selected.indexOf(name) !== -1;
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-console.log(books,'books')
   return (
     <Box sx={{ width: "100%" }}>
+      {isAlert.loading ? (
+        <MsgBar msg={isAlert.msg} color={isAlert.color} mt={6} />
+      ) : (
+        ""
+      )}
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length}  id={id} setBooks={setBooks} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          id={id}
+          setBooks={setBooks}
+        />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -337,26 +331,14 @@ console.log(books,'books')
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.name,books?.[index]?._id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.name}
-                      selected={isItemSelected}
+                      key={`luffy${index*10}`}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
+                        {index + 1}.
                       </TableCell>
                       <TableCell
                         component="th"
@@ -371,13 +353,22 @@ console.log(books,'books')
                       <TableCell align="right">{row.language}</TableCell>
                       <TableCell align="right">{row.pages}</TableCell>
                       <TableCell align="right">{row.price}</TableCell>
+                      <TableCell align="right">
+                        {" "}
+                        <IconButton>{row.action[0]}</IconButton>&nbsp;
+                        <IconButton
+                          onClick={() => handleDelete(books?.[index]?._id)}
+                        >
+                          {row.action[1]}
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
               {emptyRows > 0 && (
                 <TableRow
                   style={{
-                    height: (53) * emptyRows,
+                    height: 53 * emptyRows,
                   }}
                 >
                   <TableCell colSpan={6} />

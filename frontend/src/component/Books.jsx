@@ -5,13 +5,13 @@ import Tables from "./base/Tables";
 
 
 const Books = () => {
-const [books, setBooks]=useState();
+const [books, setBooks]=useState([]);
 
   return (
     <div>
       <Container sx={{ mt: 4 }}>
-        <AddBook setBooks={setBooks} />
-        <Tables />
+        <AddBook setBooks={setBooks}  />
+        <Tables books={books} setBooks={setBooks}/>
       </Container>
     </div>
   );

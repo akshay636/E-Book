@@ -11,7 +11,7 @@ const BookReducer=(state=(intialState,{payload})=>{
     case ADD_BOOK:
         return{...state,books:[payload,...state.books]}
     case DELETE_BOOK:
-        return{...state,books:state.books.filter((val)=>val._id!==payload.id)}
+        return{...state,books:state.books.filter(val=>val._id!==payload.id)}
     default:
         return state;
    }

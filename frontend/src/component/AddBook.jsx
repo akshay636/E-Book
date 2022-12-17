@@ -1,23 +1,12 @@
 import { Button, Stack } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useContext, useEffect, useState } from "react";
-import { isUrlValid } from "./regEx";
-import { styled } from "@mui/material/styles";
-import { Paper } from "@mui/material";
+import React, {useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import { addBook } from "../services/books";
 import DropDown from "./base/DropDown";
 import UploadBtn from "./base/UploadBtn";
 import MsgBar from "./base/MsgBar";
 import { addBookValidation } from "./validations";
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-}));
 
 const initialVal = {
   name: "",
@@ -46,11 +35,12 @@ const msgIntial = {
   color: "",
   isLoading:false,
 };
+const imgInitial={ preview: "", file: "" }
 
 const data = ["Educational", "Comics", "Fictional", "Non-Fictional"];
-const AddBook = () => {
+const AddBook = ({setBooks}) => {
   const [book, setBook] = useState(initialVal);
-  const [image, setImage] = useState({ preview: "", file: "" });
+  const [image, setImage] = useState(imgInitial);
   const [isAlert, setIsAlert] = useState(false);
   const [alertData, setAlertData] = useState(msgIntial);
 
@@ -58,14 +48,6 @@ const AddBook = () => {
     const { name, value } = event.target;
     setBook({ ...book, [name]: value });
   };
-
-  useEffect(() => {
-    let timeout;
-    if (isAlert) {
-      timeout = setTimeout(() =>{ setIsAlert(false); setAlertData(msgIntial)}, 3000);
-    }
-    return () => clearTimeout(timeout);
-  }, [isAlert]);
 
   const handleAddBook = async () => {
     if(!addBookValidation(book)){
@@ -77,9 +59,10 @@ const AddBook = () => {
         const res = await addBook(book, image?.file);
         if (res) {
           setAlertData({...msgIntial, msg: res?.data?.message, color: "green" });
+          setBooks(prev=>[...prev,res?.data?.data])
           setIsAlert(true);
           setBook(initialVal);
-          setImage({ preview: "", file: "" });
+          setImage(imgInitial);
         }
       } catch (error) {
         console.log(error)
@@ -98,10 +81,18 @@ const AddBook = () => {
       });
     }
   };
+
+  useEffect(() => {
+    let timeout;
+    if (isAlert) {
+      timeout = setTimeout(() =>{ setIsAlert(false); setAlertData(msgIntial)}, 3000);
+    }
+    return () => clearTimeout(timeout);
+  }, [isAlert]);
+
   return (
     <div>
       {isAlert ? <MsgBar mt={6} color={alertData?.color} msg={alertData?.msg} /> : ""}
-
       <Box
         component="form"
         noValidate
@@ -121,7 +112,6 @@ const AddBook = () => {
           value={book.name}
           onChange={handleChange}
         />
-
         <TextField
           helperText="Please enter Author name"
           id="demo-helper-text-misaligned"

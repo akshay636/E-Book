@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
@@ -45,7 +46,8 @@ function Navbar({setMode,mode}) {
       <AppBar position="fixed" sx={{backgroundColor:(mode==='Light'?"#1976d2":"black")}}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <AutoStoriesIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}/>
+            
             <Typography
               variant="h6"
               noWrap
@@ -94,7 +96,7 @@ function Navbar({setMode,mode}) {
                 }}
               >
                 {pages?.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <MenuItem key={page} onClick={()=>{handleCloseNavMenu(); navigate(`/${page}`)}}>
                     <Typography >{page}</Typography>
                   </MenuItem>
                 ))}

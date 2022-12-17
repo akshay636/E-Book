@@ -15,7 +15,7 @@ const bull = (
   ></Box>
 );
 
-export default function BasicCard({ name, mode, classes }) {
+export default function BasicCard({ name, mode, classes,count }) {
   const navigate= useNavigate();
   return (
     <Card
@@ -39,7 +39,7 @@ export default function BasicCard({ name, mode, classes }) {
           sx={{ mb: 1.5 }}
           color={mode === "Light" ? "text.secondary" : "white"}
         >
-          3
+          {count}
         </Typography>
         <Typography variant="body2"></Typography>
       </CardContent>
