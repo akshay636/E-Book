@@ -23,6 +23,8 @@ import SearchBar from "./SearchBar";
 import { deleteBook, getAllBooks } from "../../services/books";
 
 import MsgBar from "./MsgBar";
+import { useDispatch, useSelector } from "react-redux";
+import { delBook, fetchBooks } from "../../features/books/bookSlice";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -102,11 +104,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    order,
-    orderBy,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -138,7 +136,7 @@ function EnhancedTableHead(props) {
           </TableCell>
         ))}
         <TableCell padding="normal" align="right">
-         Actions
+          Actions
         </TableCell>
       </TableRow>
     </TableHead>
@@ -218,7 +216,7 @@ const msgIntial = {
   color: "",
   loading: false,
 };
-export default function Tables({books,setBooks}) {
+export default function Tables({ books, setBooks }) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("year");
   const [selected, setSelected] = useState([]);
@@ -226,14 +224,17 @@ export default function Tables({books,setBooks}) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [id, setId] = useState("");
   const [isAlert, setIsALert] = useState(msgIntial);
+  const bk=useSelector((state)=>state.book.books)
+  const dispatch= useDispatch();
 
+console.log(bk,'kkkkk')
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
-  const rows = books.map((val) => ({
+  const rows = bk.map((val) => ({
     name: val.name,
     author: val.author,
     price: val.price,
@@ -253,19 +254,20 @@ export default function Tables({books,setBooks}) {
   };
 
   const handleDelete = async (id) => {
-    try {
-      const res = await deleteBook(id);
-      if (res) {
-        setIsALert({ msg: res.data.message, color: "green", loading: true });
-        setBooks((val) => {
-          return val.filter((el, index) => {
-            return el._id !== id;
-          });
-        });
-      }
-    } catch (error) {
-      setIsALert({ msg: error.message, color: "red", loading: true });
-    }
+   dispatch(delBook(id))
+    // try {
+    //   const res = await deleteBook(id);
+    //   if (res) {
+    //     setIsALert({ msg: res.data.message, color: "green", loading: true });
+    //     setBooks((val) => {
+    //       return val.filter((el, index) => {
+    //         return el._id !== id;
+    //       });
+    //     });
+    //   }
+    // } catch (error) {
+    //   setIsALert({ msg: error.message, color: "red", loading: true });
+    // }
   };
   useEffect(() => {
     let timeout;
@@ -278,14 +280,13 @@ export default function Tables({books,setBooks}) {
   }, [isAlert]);
 
   useEffect(() => {
-    (async () => {
-      const res = await getAllBooks();
-      setBooks(res.data.books);
-    })();
+    dispatch(fetchBooks());
+    // (async () => {
+    //   const res = await getAllBooks();
+    //   setBooks(res.data.books);
+    // })();
     return () => {};
   }, []);
-
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -333,13 +334,8 @@ export default function Tables({books,setBooks}) {
                 .map((row, index) => {
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
-                    <TableRow
-                      hover
-                      key={`luffy${index*10}`}
-                    >
-                      <TableCell padding="checkbox">
-                        {index + 1}.
-                      </TableCell>
+                    <TableRow hover key={`luffy${index * 10}`}>
+                      <TableCell padding="checkbox">{index + 1}.</TableCell>
                       <TableCell
                         component="th"
                         id={labelId}
@@ -357,7 +353,7 @@ export default function Tables({books,setBooks}) {
                         {" "}
                         <IconButton>{row.action[0]}</IconButton>&nbsp;
                         <IconButton
-                          onClick={() => handleDelete(books?.[index]?._id)}
+                          onClick={() => handleDelete(bk?.[index]?._id)}
                         >
                           {row.action[1]}
                         </IconButton>

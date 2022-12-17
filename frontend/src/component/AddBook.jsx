@@ -7,18 +7,10 @@ import DropDown from "./base/DropDown";
 import UploadBtn from "./base/UploadBtn";
 import MsgBar from "./base/MsgBar";
 import { addBookValidation } from "./validations";
+import { Categories,bookInitialVal,msgInitial } from "../constant";
+import { useDispatch } from "react-redux";
+import { addBooks } from "../features/books/bookSlice";
 
-const initialVal = {
-  name: "",
-  author: "",
-  price: "",
-  pages: "",
-  year: "",
-  language: "",
-  image: "",
-  category: "",
-  link: "",
-};
 
 const img = {
   display: "block",
@@ -30,46 +22,41 @@ const img = {
   marginLeft: "20px",
 };
 
-const msgIntial = {
-  msg: "",
-  color: "",
-  isLoading:false,
-};
 const imgInitial={ preview: "", file: "" }
 
-const data = ["Educational", "Comics", "Fictional", "Non-Fictional"];
 const AddBook = ({setBooks}) => {
-  const [book, setBook] = useState(initialVal);
+  const [book, setBook] = useState(bookInitialVal);
   const [image, setImage] = useState(imgInitial);
   const [isAlert, setIsAlert] = useState(false);
-  const [alertData, setAlertData] = useState(msgIntial);
-
+  const [alertData, setAlertData] = useState(msgInitial);
+  const dispatch= useDispatch();
   const handleChange = (event) => {
     const { name, value } = event.target;
     setBook({ ...book, [name]: value });
   };
 
   const handleAddBook = async () => {
-    if(!addBookValidation(book)){
+    const {status,msg}=addBookValidation(book,image);
+    if(status){
       setIsAlert(true);
-      setAlertData({ msg: "Fill all fields", color: "red",isLoading:false });
+      setAlertData({ msg: msg, color: "red",isLoading:false });
     }else{
-      try {
-        setAlertData({...msgIntial, isLoading:true });
-        const res = await addBook(book, image?.file);
-        if (res) {
-          setAlertData({...msgIntial, msg: res?.data?.message, color: "green" });
-          setBooks(prev=>[...prev,res?.data?.data])
-          setIsAlert(true);
-          setBook(initialVal);
-          setImage(imgInitial);
-        }
-      } catch (error) {
-        console.log(error)
-        setAlertData({ msg: error.message, color: "red",isLoading:false });
-      }
+      dispatch(addBooks({book:book,img:image?.file}))
+      // try {
+      //   setAlertData({...msgInitial, isLoading:true });
+      //   const res = await addBook(book, image?.file);
+      //   if (res) {
+      //     setAlertData({...msgInitial, msg: res?.data?.message, color: "green" });
+      //     setBooks(prev=>[...prev,res?.data?.data])
+      //     setIsAlert(true);
+      //     setBook(bookInitialVal);
+      //     setImage(imgInitial);
+      //   }
+      // } catch (error) {
+      //   console.log(error)
+      //   setAlertData({ msg: error.message, color: "red",isLoading:false });
+      // }
     }
-    
   };
 
   const handleImage = (event) => {
@@ -85,7 +72,7 @@ const AddBook = ({setBooks}) => {
   useEffect(() => {
     let timeout;
     if (isAlert) {
-      timeout = setTimeout(() =>{ setIsAlert(false); setAlertData(msgIntial)}, 3000);
+      timeout = setTimeout(() =>{ setIsAlert(false); setAlertData(msgInitial)}, 3000);
     }
     return () => clearTimeout(timeout);
   }, [isAlert]);
@@ -124,6 +111,7 @@ const AddBook = ({setBooks}) => {
           helperText="Please enter Publish Year  "
           id="demo-helper-text-misaligned"
           label="Year"
+          type="number"
           name="year"
           value={book.year}
           onChange={handleChange}
@@ -160,11 +148,12 @@ const AddBook = ({setBooks}) => {
           label="Link"
           type="text"
           name="link"
+          placeholder="https://"
           value={book.link}
           onChange={handleChange}
         />
         <DropDown
-          data={data}
+          data={Categories}
           name="category"
           value={book.category}
           handleChange={handleChange}

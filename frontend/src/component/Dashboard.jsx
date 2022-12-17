@@ -1,14 +1,18 @@
 import { Container } from "@mui/system";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import BasicCard from "./base/ BasicCard";
 import { Grid } from "@mui/material";
-import Books from "./Books";
+import { dashboardCard } from "../constant";
 import { useDispatch, useSelector } from "react-redux";
-import { GetBooks } from "./middleware/bookMiddleware";
-const data = ["Books", "Category", "Users", "Audio Book","Update User","Delete User","Add User","Return Book"];
+import { fetchBooks } from "../features/books/bookSlice";
 
-const Dashboard = ({mode}) => {
-
+const Dashboard = ({ mode }) => {
+  const bookss = useSelector((state) => state.book.books);
+  const dispatch = useDispatch();
+  const getAll = useCallback(() => dispatch(fetchBooks()));
+  useEffect(() => {
+    getAll();
+  }, []);
   return (
     <Container sx={{ marginTop: "150px" }}>
       <div>
@@ -19,14 +23,16 @@ const Dashboard = ({mode}) => {
           justify="flex-start"
           alignItems="flex-start"
         >
-          {data.map((name, index) => {
+          {dashboardCard.map((name) => {
             return (
-              <Grid item xs={12} sm={6} md={3} key={data.indexOf(name)}>
-                <BasicCard
-                name={name}
-                count={2}
-                mode={mode}
-                 />
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={3}
+                key={dashboardCard.indexOf(name)}
+              >
+                <BasicCard name={name} count={bookss?.length} mode={mode} />
               </Grid>
             );
           })}

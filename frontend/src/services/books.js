@@ -16,9 +16,12 @@ const addBook=(book,image)=>{
 return axios.post(ADD_BOOK,formData);
 }
 
+
 const deleteBook=(id)=>{
   return axios.delete(`${DELETE_BOOK}/${id}`)
 }
+
+
 const getAllBooks=()=>{
     return axios.get(ALL_BOOKS);
 }

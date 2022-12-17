@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import Navbar from "./component/Navbar";
 import Dashboard from "./component/Dashboard";
@@ -8,6 +7,7 @@ import Books from "./component/Books";
 import Category from "./component/Category";
 import { store } from "./component/store";
 import { Provider } from "react-redux";
+
 function App() {
   const [mode, setMode] = useState("Light");
   return (
