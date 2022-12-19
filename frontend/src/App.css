@@ -1,6 +1,4 @@
-.App {
-  text-align: center; 
-}
+
 .Dark {
   background-color: #333;
   color: #fff;
@@ -11,6 +9,14 @@
 }
 .MuiDrawer-paperAnchorLeft{
   margin-top: 69px;
+}
+.bhHnmT{
+  height: 434px !important;
+}
+.MuiPaper-root {
+
+  transition: none !important;
+  background-color:none !important;
 }
 
 

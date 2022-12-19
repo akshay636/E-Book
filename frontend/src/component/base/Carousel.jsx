@@ -4,7 +4,7 @@ import '../../styles/carousel.css'
 
 export const CarouselItem = ({ children, width }) => {
   return (
-    <div className="carousel-item" style={{ width: width }}>
+    <div className="carousel-item" style={{ width: width, height:"441px"  }}>
       {children}
     </div>
   );
@@ -45,6 +45,7 @@ const Carousel = ({ children }) => {
 
   return (
     <div
+      
       {...handlers}
       className="carousel"
       onMouseEnter={() => setPaused(true)}

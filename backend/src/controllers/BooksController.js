@@ -3,7 +3,7 @@ var fs = require("fs");
 require("../config/cloudinaryConfig");
 const cloudinary = require("cloudinary").v2;
 
-const img = (path, uniqueFilename, category) => {
+const img = async (path, uniqueFilename, category) => {
   return cloudinary.uploader
     .upload(path, {
       public_id: `books/${category}/${uniqueFilename}`,
@@ -11,7 +11,6 @@ const img = (path, uniqueFilename, category) => {
     })
     .then((result) => {
       fs.unlinkSync(path);
-      // res.send(200);
       return {
         message: "Success",
         url: result.url,
@@ -63,8 +62,8 @@ const deleteBook = async (req, res, next) => {
     let id = req.params.id;
   const result =   await Book.findByIdAndDelete(id);
   (result)?res.status(200).json({message:"Book deleted successfully!"}):res.status(401).json({message:"Book is not found!"})
- 
 };
+
 const getAllBooks = async (req, res, next) => {
   const books = await Book.find();
   res.status(200).json({

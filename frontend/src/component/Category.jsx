@@ -170,8 +170,8 @@ function Category(props) {
         sx={{
           flexGrow: 1,
           p: 3,
-          mt: 5,
-          ml: 0,
+          mt: 3,
+          ml: 4,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
@@ -179,11 +179,11 @@ function Category(props) {
         {categoryData.length === 0 ? (
           <p className="nodee">No Data Related Category!</p>
         ) : (
-          <Carousel cols={4} rows={1} gap={5}>
+          <Carousel cols={4} rows={1} gap={6}>
             {categoryData?.map((val, index) => {
               return (
-                <Carousel.Item key={val + index}>
-                  <CateCard name={index} data={val}/>
+                <Carousel.Item key={val + index} width={"100%"}>
+                  <CateCard name={index} data={val} />
                 </Carousel.Item>
               );
             })}

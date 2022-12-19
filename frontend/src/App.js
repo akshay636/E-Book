@@ -7,11 +7,18 @@ import Books from "./component/Books";
 import Category from "./component/Category";
 import { store } from "./component/store";
 import { Provider } from "react-redux";
-
+import { makeStyles } from "@material-ui/core/styles";
+const useStyles = makeStyles(theme => ({
+  root: {
+    "& .MuiPaper-root": {
+    }
+  }
+}));
 function App() {
   const [mode, setMode] = useState("Light");
+  const classes = useStyles();
   return (
-    <div className={`App ${mode}`}>
+    <div className={`App ${mode} ${classes.root}`}>
     <Provider store={store}>
       <BrowserRouter>
         <Navbar setMode={setMode} mode={mode} />
