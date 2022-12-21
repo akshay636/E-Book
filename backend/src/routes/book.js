@@ -9,5 +9,7 @@ router.get("/getAllBooks", BookControler.getAllBooks);
 
 router.delete('/deleteBook/:id', BookControler.deleteBook)
 
+router.put('/editBook',BookControler.editBook);
+
 
 module.exports = router;

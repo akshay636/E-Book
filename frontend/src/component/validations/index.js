@@ -10,8 +10,7 @@ export function addBookValidation(form,image) {
     category === "" ||
     year === "" ||
     link === ""||
-    language===""||
-    preview===""
+    language===""
     ? { status: true, msg: "Please fill all details!" }
     : !isUrlValid(link)
     ? { status: true, msg: "Please provide valid url!" }

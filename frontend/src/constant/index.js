@@ -2,6 +2,7 @@ import { BASE_URL } from "../services";
 export const ADD_BOOK = `${BASE_URL}/addBook`;
 export const ALL_BOOKS = `${BASE_URL}/getAllBooks`;
 export const DELETE_BOOK = `${BASE_URL}/deleteBook`;
+export const EDIT_BOOK=`${BASE_URL}/editBook`
 
 export const Categories = [
   "Educational",
@@ -9,6 +10,7 @@ export const Categories = [
   "Fictional",
   "Non-Fictional",
 ];
+
 export const dashboardCard = [
   "Books",
   "Category",

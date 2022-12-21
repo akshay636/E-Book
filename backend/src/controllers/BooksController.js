@@ -58,6 +58,14 @@ const addBook = async (req, res, next) => {
   }
 };
 
+const editBook= async(req,res,next)=>{
+
+  console.log(req.body,'---')
+  // const result= await Book.updateOne({_id:'63a064e8152528ab1ffa1597'},{$set:req.body})
+  res.send('200')
+  // (result)?res.status(200).json({message:"Book updated succeesfully!"}):res.status(401).json({message:"Book not updated! some thing went wrong"})
+}
+
 const deleteBook = async (req, res, next) => {
     let id = req.params.id;
   const result =   await Book.findByIdAndDelete(id);
@@ -76,4 +84,5 @@ module.exports = {
   addBook,
   getAllBooks,
   deleteBook,
+  editBook,
 };

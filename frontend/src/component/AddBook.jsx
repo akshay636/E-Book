@@ -1,16 +1,15 @@
 import { Button, Stack } from "@mui/material";
 import { Box } from "@mui/system";
-import React, {useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
-import { addBook } from "../services/books";
+import { editBook } from "../services/books";
 import DropDown from "./base/DropDown";
 import UploadBtn from "./base/UploadBtn";
 import MsgBar from "./base/MsgBar";
 import { addBookValidation } from "./validations";
-import { Categories,bookInitialVal,msgInitial } from "../constant";
-import { useDispatch } from "react-redux";
+import { Categories, bookInitialVal, msgInitial } from "../constant";
+import { useDispatch, useSelector } from "react-redux";
 import { addBooks } from "../features/books/bookSlice";
-
 
 const img = {
   display: "block",
@@ -22,40 +21,51 @@ const img = {
   marginLeft: "20px",
 };
 
-const imgInitial={ preview: "", file: "" }
+const imgInitial = { preview: "", file: "" };
 
-const AddBook = ({setBooks}) => {
-  const [book, setBook] = useState(bookInitialVal);
+const AddBook = ({ book, setBook, isEditing,setIsEditing }) => {
   const [image, setImage] = useState(imgInitial);
   const [isAlert, setIsAlert] = useState(false);
   const [alertData, setAlertData] = useState(msgInitial);
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
+
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setBook({ ...book, [name]: value });
   };
 
   const handleAddBook = async () => {
-    const {status,msg}=addBookValidation(book,image);
-    if(status){
+    const { status, msg } = addBookValidation(book, image);
+    if (status) {
       setIsAlert(true);
-      setAlertData({ msg: msg, color: "red",isLoading:false });
-    }else{
-      dispatch(addBooks({book:book,img:image?.file}))
-      // try {
-      //   setAlertData({...msgInitial, isLoading:true });
-      //   const res = await addBook(book, image?.file);
-      //   if (res) {
-      //     setAlertData({...msgInitial, msg: res?.data?.message, color: "green" });
-      //     setBooks(prev=>[...prev,res?.data?.data])
-      //     setIsAlert(true);
-      //     setBook(bookInitialVal);
-      //     setImage(imgInitial);
-      //   }
-      // } catch (error) {
-      //   console.log(error)
-      //   setAlertData({ msg: error.message, color: "red",isLoading:false });
-      // }
+      setAlertData({ msg: msg, color: "red", isLoading: false });
+    } else {
+      if (isEditing) {
+        const res=await editBook(book,image)
+        setIsEditing(false);
+      //  setBook(boook);
+      } else {
+        try {
+          setAlertData({ ...alertData, isLoading: true });
+          const res = await dispatch(
+            addBooks({ book: book, img: image?.file })
+          );
+          if (res) {
+            setAlertData({
+              ...msgInitial,
+              msg: res?.payload?.data?.message,
+              color: "green",
+            });
+            setIsAlert(true);
+            setBook(bookInitialVal);
+            setImage(imgInitial);
+          }
+        } catch (error) {
+          console.log(error);
+          setAlertData({ msg: error.message, color: "red", isLoading: false });
+        }
+      }
     }
   };
 
@@ -72,14 +82,21 @@ const AddBook = ({setBooks}) => {
   useEffect(() => {
     let timeout;
     if (isAlert) {
-      timeout = setTimeout(() =>{ setIsAlert(false); setAlertData(msgInitial)}, 3000);
+      timeout = setTimeout(() => {
+        setIsAlert(false);
+        setAlertData(msgInitial);
+      }, 3000);
     }
     return () => clearTimeout(timeout);
   }, [isAlert]);
 
   return (
     <div>
-      {isAlert ? <MsgBar mt={6} color={alertData?.color} msg={alertData?.msg} /> : ""}
+      {isAlert ? (
+        <MsgBar mt={6} color={alertData?.color} msg={alertData?.msg} />
+      ) : (
+        ""
+      )}
       <Box
         component="form"
         noValidate
@@ -160,7 +177,7 @@ const AddBook = ({setBooks}) => {
         />
         <Stack direction="row" alignItems="center" spacing={0}>
           <UploadBtn name="image" value={book.image} onChange={handleImage} />
-          <img src={image?.preview} style={img}></img>
+          <img src={(isEditing)?book.image.url:image?.preview} style={img}></img>
         </Stack>
         <Button
           variant="contained"
@@ -168,7 +185,7 @@ const AddBook = ({setBooks}) => {
           sx={{ height: "40px" }}
           disabled={alertData?.isLoading}
         >
-          {alertData?.isLoading?"Adding...":"Add Book"}
+          {(isEditing)?(alertData?.isLoading ? "Adding...":"Edit Book"):alertData?.isLoading ? "Adding..." : "Add Book"}
         </Button>
       </Box>
     </div>

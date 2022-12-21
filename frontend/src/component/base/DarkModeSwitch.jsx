@@ -53,7 +53,6 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 }));
 
 export default function DarkModeSwitch({setMode,mode}) {
-  console.log(mode)
   const handleMode=()=>{
     (mode==="Light"?setMode('Dark'):setMode('Light'))
   }

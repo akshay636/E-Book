@@ -24,7 +24,7 @@ import { deleteBook, getAllBooks } from "../../services/books";
 
 import MsgBar from "./MsgBar";
 import { useDispatch, useSelector } from "react-redux";
-import { delBook, fetchBooks } from "../../features/books/bookSlice";
+import { delBook, editBook, fetchBooks } from "../../features/books/bookSlice";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -216,7 +216,7 @@ const msgIntial = {
   color: "",
   loading: false,
 };
-export default function Tables({ books, setBooks }) {
+export default function Tables({ setBook, setIsEditing }) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("year");
   const [selected, setSelected] = useState([]);
@@ -224,16 +224,16 @@ export default function Tables({ books, setBooks }) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [id, setId] = useState("");
   const [isAlert, setIsALert] = useState(msgIntial);
-  const bk=useSelector((state)=>state.book.books)
-  const dispatch= useDispatch();
+  const bk = useSelector((state) => state.book.books);
+  const { book } = useSelector((state) => state.book);
+  const dispatch = useDispatch();
 
-console.log(bk,'kkkkk')
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
-
+  console.log("sipp", book);
   const rows = bk.map((val) => ({
     name: val.name,
     author: val.author,
@@ -253,22 +253,28 @@ console.log(bk,'kkkkk')
     setSelected([]);
   };
 
-  const handleDelete = async (id) => {
-   dispatch(delBook(id))
-    // try {
-    //   const res = await deleteBook(id);
-    //   if (res) {
-    //     setIsALert({ msg: res.data.message, color: "green", loading: true });
-    //     setBooks((val) => {
-    //       return val.filter((el, index) => {
-    //         return el._id !== id;
-    //       });
-    //     });
-    //   }
-    // } catch (error) {
-    //   setIsALert({ msg: error.message, color: "red", loading: true });
-    // }
+  const handleEdit = (index) => {
+    const bks = bk[index];
+    setBook(bks);
+    setIsEditing(true);
   };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await dispatch(delBook(id));
+      // const res = await deleteBook(id);
+      if (res) {
+        setIsALert({
+          msg: res?.payload?.data?.message,
+          color: "blue",
+          loading: true,
+        });
+      }
+    } catch (error) {
+      setIsALert({ msg: error.message, color: "red", loading: true });
+    }
+  };
+
   useEffect(() => {
     let timeout;
     if (isAlert) {
@@ -281,10 +287,7 @@ console.log(bk,'kkkkk')
 
   useEffect(() => {
     dispatch(fetchBooks());
-    // (async () => {
-    //   const res = await getAllBooks();
-    //   setBooks(res.data.books);
-    // })();
+
     return () => {};
   }, []);
 
@@ -297,7 +300,6 @@ console.log(bk,'kkkkk')
     setPage(0);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -309,11 +311,7 @@ console.log(bk,'kkkkk')
         ""
       )}
       <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar
-          numSelected={selected.length}
-          id={id}
-          setBooks={setBooks}
-        />
+        <EnhancedTableToolbar numSelected={selected.length} id={id} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -351,7 +349,14 @@ console.log(bk,'kkkkk')
                       <TableCell align="right">{row.price}</TableCell>
                       <TableCell align="right">
                         {" "}
-                        <IconButton>{row.action[0]}</IconButton>&nbsp;
+                        <IconButton
+                          onClick={() => {
+                            handleEdit(index);
+                          }}
+                        >
+                          {row.action[0]}
+                        </IconButton>
+                        &nbsp;
                         <IconButton
                           onClick={() => handleDelete(bk?.[index]?._id)}
                         >
