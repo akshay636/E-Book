@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useMemo} from "react";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -104,7 +104,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const { order, orderBy, onRequestSort } = props;
+  const { order, orderBy, onRequestSort,  } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -153,7 +153,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+  const { numSelected,searchStr,bk } = props;
 
   return (
     <>
@@ -189,7 +189,7 @@ function EnhancedTableToolbar(props) {
             Books
           </Typography>
         )}
-        <SearchBar />
+        <SearchBar searchStr={searchStr} bk={bk} />
         {numSelected > 0 ? (
           <Tooltip title="Delete">
             <IconButton>
@@ -223,11 +223,13 @@ export default function Tables({ books, setBooks }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [id, setId] = useState("");
-  const [isAlert, setIsALert] = useState(msgIntial);
-  const bk=useSelector((state)=>state.book.books)
-  const dispatch= useDispatch();
 
-console.log(bk,'kkkkk')
+
+  const [isAlert, setIsALert] = useState(msgIntial);
+  let bk = useSelector((state) => state.book.books);
+  const dispatch = useDispatch();
+
+  console.log(bk, "kkkkk");
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -244,17 +246,9 @@ console.log(bk,'kkkkk')
     action: [<EditIcon />, <DeleteIcon />],
   }));
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = rows.map((n) => n.name);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
 
   const handleDelete = async (id) => {
-   dispatch(delBook(id))
+    dispatch(delBook(id));
     // try {
     //   const res = await deleteBook(id);
     //   if (res) {
@@ -313,6 +307,8 @@ console.log(bk,'kkkkk')
           numSelected={selected.length}
           id={id}
           setBooks={setBooks}
+          bk={bk}
+          
         />
         <TableContainer>
           <Table
@@ -324,10 +320,10 @@ console.log(bk,'kkkkk')
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
             />
+            {bk.length===0?<TableBody> <TableRow hover  ><Typography width={"200px"} align="center"> No Book Fund!</Typography></TableRow></TableBody>:""}
             <TableBody>
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -361,13 +357,14 @@ console.log(bk,'kkkkk')
                     </TableRow>
                   );
                 })}
+           
               {emptyRows > 0 && (
                 <TableRow
                   style={{
                     height: 53 * emptyRows,
                   }}
                 >
-                  <TableCell colSpan={6} />
+                  <TableCell colSpan={6}></TableCell>
                 </TableRow>
               )}
             </TableBody>

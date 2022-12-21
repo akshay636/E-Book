@@ -1,11 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { bookInitialVal } from "../../constant";
 import { deleteBook, getAllBooks, addBook } from "../../services/books";
 
 const initialState = {
   loading: false,
   books: [],
   error: "",
+  book: bookInitialVal,
 };
 
 export const fetchBooks = createAsyncThunk("fetch/books", () => {
@@ -23,6 +25,23 @@ export const addBooks = createAsyncThunk("add", ({ book, img }) => {
 const bookSlice = createSlice({
   name: "book",
   initialState,
+  reducers: {
+    editBook: (state, action) => {
+      const { index, bk } = action.payload;
+      console.log(action, "books");
+      state.book = bk[index];
+    },
+    searchBook: (state, action) => {
+      const { searchStr, bk } = action.payload;
+      let copyObj=bk;
+      console.log(copyObj,'opp')
+      searchStr === ""
+        ? (state.books = copyObj)
+        : (state.books = bk?.filter((val) =>
+            val.name.toUpperCase().includes(searchStr.toUpperCase())
+          ));
+    },
+  },
   extraReducers: {
     [fetchBooks.pending]: (state, action) => {
       state.loading = true;
@@ -36,14 +55,12 @@ const bookSlice = createSlice({
       state.books = [];
       state.error = action.error.message;
     },
-    
 
     [delBook.pending]: (state, action) => {
       state.loading = true;
     },
     [delBook.fulfilled]: (state, action) => {
       const { arg } = action.meta;
-      console.log(arg);
       state.loading = false;
       state.books = state.books.filter((val) => val._id !== arg);
       state.error = "";
@@ -53,13 +70,10 @@ const bookSlice = createSlice({
       state.error = action.payload.message;
     },
 
-
     [addBooks.pending]: (state, action) => {
       state.loading = true;
     },
     [addBooks.fulfilled]: (state, action) => {
-      console.log(action);
-      console.log("first");
       state.loading = false;
       state.books = [...state.books, action.payload.data.data];
       state.error = "";
@@ -90,3 +104,4 @@ const bookSlice = createSlice({
 //   },
 // });
 export default bookSlice.reducer;
+export const { editBook, searchBook } = bookSlice.actions;
